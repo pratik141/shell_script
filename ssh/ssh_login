@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Author: Pratik Anand <pratik.anand@mobiliya.com>
+# Desc: Remote login of hosts over SSH 
+#iplist: List were detail(s) of server/env define 
+#iplist format: $name=$user@$ip=$pem !!	Any other fomat is not acceptable 
+#key_location: Location of pem file 
+
+echo "Define the iplist and server key first 
+Remove this line to execute "
+exit 0 # Remove this
+
+#set -e 
+iplist="/home/$USER/iplist"
+key_location="/home/$USER/server_key"
+
+
+if [ $1 == "list" ]
+     then
+        cat $iplist     
+	exit
+fi
+
+
+if [ -z  $2 ]
+     then
+        echo "Please specify project name also"         
+             exit
+fi
+
+name=`grep $1 $iplist`
+
+    if [ -z $name ]
+       then
+	 echo "$1 Not availabe in list  Want to add this!!!"
+         echo "If yes press y or yes "
+         read choice
+
+         if [ $choice == "y" ]
+            then
+                echo "Enter the name "
+                read name
+                echo "Enter the ip "
+                read ip
+                echo "Enter the user name"
+                read user
+                echo "Enter the pem file"
+                read pem
+
+                        echo $name=$user@$ip=$pem  >> $iplist
+                        echo "value added to ip list "
+                        echo "$name=$user@$ip=$pem "
+    
+	else 
+		exit 
+	fi
+    fi
+
+pem=`grep $1 $iplist|cut -d "=" -f 3`
+user=`grep $1 $iplist|cut -d "=" -f 2|cut -d "@" -f 1`
+ip=`grep $1 $iplist|cut -d "=" -f 2|cut -d "@" -f 2`
+
+case $2 in
+        project-1|env-qa)
+	 echo "login to $1"
+         ssh -i $key_location/qa/"$pem" "$user"@"$ip"
+	;;
+	project-2|env-dev)
+	  echo "login to $1"
+	  ssh -i  $key_location/dec/"$pem" "$user"@"$ip"
+	;;
+	*)
+         echo "$2 Not availabe in list"
+        ;;
+
+esac
