@@ -1,12 +1,15 @@
 #!/bin/bash
 
-#author Pratik Anand <pratik.anand@mobiliya.com>
-#Shell script to copy the changes done in git within the povided date  
-#date format mm-dd 
-#year value is 2016 
+# Author: Pratik Anand <pratik.anand@mobiliya.com>
+# Desc: Shell script to copy the changes done in git within the povided date
+# Date format: mm-dd
+# Default year value: 2016
+# Destination: location where you want to copy
+# log_location: location where you want to git log
 
-log_location=definel # difine location of file where  you want to store it  !! Mandatory 
-count=0 
+log_location=definel
+count=0
+Destination=/tmp/DA
 
 #set -e 
 afterDate() {
@@ -26,40 +29,40 @@ beforeDate # calling function to collect before date
 before_date=2016-$bd
 
 git log --name-only --after "$after_date" --before="$before_date" --pretty=format=%h  |sed 's|format=.*||g' > $log_location
-sed -i '/^$/d' $log_location # Removing extra line 
+sed -i '/^$/d' $log_location # Removing extra line
 
 
 cat $log_location | while read LINE
 
 	do
-	put_location=/tmp/DA
+	put_location=$Destination # Reseting put_location
 	let count++
 	word=`echo $LINE |grep -o "/" |wc -w`
 	i=1
 	word=`expr $word + 2`
 
 	while [ $i -lt $word ]
-		do  
+		do
 		dir=`echo $LINE |cut -d / -f $i`
 		if [[ $i == 1 ]]; then
 			dircheck=$dir
-		else 
+		else
 			dircheck=$dircheck/$dir
 		fi
 
 		let i++
 		if [[  -d $dircheck ]]; then
 			if [[ ! -d $put_location/$dir ]]; then
-				#echo creating $dir	
+				#echo creating $dir
 				mkdir $put_location/$dir
 			fi
 		elif [[  -f $dircheck ]]; then
-			if [[ -x $dircheck ]] ;then chmod +x $put_location/$dir ;  fi 
+			if [[ -x $dircheck ]] ;then chmod +x $put_location/$dir ;  fi
 			cp -r $dircheck $put_location
-		else 
+		else
 			rm $put_location/$dir
 		fi
-		put_location=$put_location/$dir
+		put_location=$put_location/$dir # Updating the put_location for next check
 
 		done
 	done
