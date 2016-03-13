@@ -54,7 +54,7 @@ cat $log_location | while read LINE
 				mkdir $put_location/$dir
 			fi
 		elif [[  -f $dircheck ]]; then
-			if [[ -x $dircheck ]] ;then echo "Executable permission is there";  fi 
+			if [[ -x $dircheck ]] ;then chmod +x $put_location/$dir ;  fi 
 			cp -r $dircheck $put_location
 		else 
 			rm $put_location/$dir
